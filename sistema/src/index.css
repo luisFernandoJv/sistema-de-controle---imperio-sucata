@@ -1,0 +1,816 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 240 10% 99%;
+  --foreground: 240 10% 3.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 3.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 3.9%;
+  --primary: 262.1 83.3% 57.8%;
+  --primary-foreground: 210 20% 98%;
+  --secondary: 220 13% 91%;
+  --secondary-foreground: 220.9 39.3% 11%;
+  --muted: 220 13% 91%;
+  --muted-foreground: 225.5 8.9% 46.1%;
+  --accent: 220 13% 91%;
+  --accent-foreground: 220.9 39.3% 11%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 20% 98%;
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 262.1 83.3% 57.8%;
+  --radius: 0.75rem;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+/* Removed all blinking/pulsing animations for professional look */
+
+/* Estilos melhorados para botões e componentes */
+.btn-large {
+  @apply min-h-[2.75rem] px-5 text-base font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98];
+}
+
+.text-accessible {
+  @apply text-base md:text-lg leading-relaxed;
+}
+
+/* Melhorias para responsividade e acessibilidade */
+.responsive-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6;
+}
+
+.card-hover {
+  @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+}
+
+.input-focus {
+  @apply focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200;
+}
+
+/* Estados de loading e feedback visual */
+.loading-spinner {
+  @apply animate-spin rounded-full border-2 border-gray-300 border-t-blue-600;
+}
+
+.success-flash {
+  animation: successFlash 0.6s ease-in-out;
+}
+
+@keyframes successFlash {
+  0% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgba(34, 197, 94, 0.2);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.error-shake {
+  animation: errorShake 0.5s ease-in-out;
+}
+
+@keyframes errorShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* Melhorias para acessibilidade */
+.focus-visible:focus {
+  @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Estilos para modais e overlays */
+.modal-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  @apply bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Estilos para toast notifications */
+.toast {
+  @apply fixed top-4 right-4 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4 max-w-sm;
+  animation: toastSlideIn 0.3s ease-out;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.toast-success {
+  @apply border-green-200 bg-green-50 text-green-800;
+}
+
+.toast-error {
+  @apply border-red-200 bg-red-50 text-red-800;
+}
+
+.toast-warning {
+  @apply border-yellow-200 bg-yellow-50 text-yellow-800;
+}
+
+.toast-info {
+  @apply border-blue-200 bg-blue-50 text-blue-800;
+}
+
+/* Estilos para scrollbars customizadas */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Utilitários para layout responsivo */
+.container-responsive {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.grid-responsive {
+  @apply grid gap-4 grid-cols-1 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+}
+
+.flex-responsive {
+  @apply flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between;
+}
+
+/* Estados de hover melhorados */
+.hover-lift {
+  @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-1;
+}
+
+.hover-glow {
+  @apply transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/25;
+}
+
+/* Gradientes profissionais */
+.gradient-primary {
+  @apply bg-gradient-to-r from-blue-600 to-purple-600;
+}
+
+.gradient-success {
+  @apply bg-gradient-to-r from-green-500 to-emerald-600;
+}
+
+.gradient-warning {
+  @apply bg-gradient-to-r from-yellow-500 to-orange-500;
+}
+
+.gradient-danger {
+  @apply bg-gradient-to-r from-red-500 to-pink-600;
+}
+
+/* Removed gradient-mesh animation */
+
+/* Glass morphism effect */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Neumorphism effect */
+.neumorphic {
+  background: #e0e5ec;
+  box-shadow: 9px 9px 16px rgba(163, 177, 198, 0.6), -9px -9px 16px rgba(255, 255, 255, 0.5);
+}
+
+.neumorphic-inset {
+  background: #e0e5ec;
+  box-shadow: inset 6px 6px 12px rgba(163, 177, 198, 0.6), inset -6px -6px 12px rgba(255, 255, 255, 0.5);
+}
+
+/* Enhanced button styles */
+.btn-3d {
+  transform-style: preserve-3d;
+  transition: all 0.2s ease;
+}
+
+.btn-3d:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn-3d:active {
+  transform: translateY(0);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Ripple effect */
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.ripple:active::after {
+  width: 300px;
+  height: 300px;
+}
+
+/* Skeleton loading */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Improved floating action button styles - better proportions */
+.fab-menu {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+}
+
+.fab-button {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-center: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.fab-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2), 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+
+.fab-submenu {
+  position: absolute;
+  bottom: 80px;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Enhanced card styles */
+.card-premium {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.card-premium::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.card-premium:hover::before {
+  left: 100%;
+}
+
+/* Tooltip styles */
+.tooltip {
+  position: relative;
+}
+
+.tooltip::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  font-size: 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.tooltip:hover::before {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
+}
+
+/* Progress bar */
+.progress-bar {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  transition: width 0.3s ease;
+}
+
+/* Removed badge-animated shine effect */
+
+/* Scroll to top button */
+.scroll-to-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 999;
+}
+
+.scroll-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.scroll-to-top:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+}
+
+/* Enhanced transitions */
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-bounce {
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Focus styles for accessibility */
+*:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Estilos para materiais com cores profissionais */
+.material-ferro {
+  @apply bg-gray-700 hover:bg-gray-800 text-white;
+}
+
+.material-aluminio {
+  @apply bg-blue-600 hover:bg-blue-700 text-white;
+}
+
+.material-cobre {
+  @apply bg-orange-600 hover:bg-orange-700 text-white;
+}
+
+.material-latinha {
+  @apply bg-green-600 hover:bg-green-700 text-white;
+}
+
+.material-inox {
+  @apply bg-purple-600 hover:bg-purple-700 text-white;
+}
+
+.material-bateria {
+  @apply bg-red-600 hover:bg-red-700 text-white;
+}
+
+/* Adicionando classes utilitárias para impressão */
+.print-landscape {
+  @media print {
+    @page {
+      size: A4 landscape;
+      margin: 10mm;
+    }
+  }
+}
+
+.print-portrait {
+  @media print {
+    @page {
+      size: A4 portrait;
+      margin: 15mm;
+    }
+  }
+}
+
+.print-small-text {
+  @media print {
+    font-size: 8px !important;
+  }
+}
+
+.print-large-text {
+  @media print {
+    font-size: 14px !important;
+  }
+}
+
+.print-bold {
+  @media print {
+    font-weight: bold !important;
+  }
+}
+
+.print-center {
+  @media print {
+    text-align: center !important;
+  }
+}
+
+.print-right {
+  @media print {
+    text-align: right !important;
+  }
+}
+
+/* Animações suaves e profissionais */
+.fade-in {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.scale-in {
+  animation: scaleIn 0.2s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Removed all floating, pulsing, and bouncing animations */
+
+.animate-slide-up {
+  animation: slide-up 0.5s ease-out;
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.5s ease-out;
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estilos de impressão profissionais melhorados */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print-page {
+    page-break-after: always;
+    min-height: 100vh;
+  }
+
+  .print-header {
+    page-break-inside: avoid;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #22c55e;
+    text-align: center;
+  }
+
+  .print-header h1 {
+    font-size: 24px !important;
+    color: #22c55e !important;
+    margin: 0 0 10px 0 !important;
+    font-weight: bold !important;
+  }
+
+  .print-header h2 {
+    font-size: 16px !important;
+    color: #374151 !important;
+    margin: 0 0 5px 0 !important;
+  }
+
+  .print-table {
+    page-break-inside: avoid;
+    border-collapse: collapse;
+    width: 100%;
+    margin: 15px 0;
+    font-size: 10px;
+  }
+
+  .print-table th,
+  .print-table td {
+    border: 1px solid #333 !important;
+    padding: 6px 4px !important;
+    font-size: 9px !important;
+    vertical-align: top;
+  }
+
+  .print-table th {
+    background-color: #22c55e !important;
+    color: white !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .print-table tbody tr:nth-child(even) {
+    background-color: #f9fafb !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .print-summary {
+    page-break-inside: avoid;
+    margin: 20px 0;
+    padding: 15px;
+    border: 2px solid #22c55e !important;
+    background-color: #f0fdf4 !important;
+    border-radius: 8px;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .print-summary h3 {
+    color: #22c55e !important;
+    font-size: 14px !important;
+    margin: 0 0 12px 0 !important;
+    text-align: center !important;
+    font-weight: bold !important;
+  }
+
+  .print-summary-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .print-summary-item {
+    text-align: center !important;
+    padding: 10px !important;
+    background: white !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 4px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .print-summary-label {
+    font-size: 9px !important;
+    color: #6b7280 !important;
+    margin-bottom: 4px !important;
+    font-weight: 500 !important;
+  }
+
+  .print-summary-value {
+    font-size: 12px !important;
+    font-weight: bold !important;
+    color: #1f2937 !important;
+  }
+
+  .print-info {
+    margin: 15px 0 !important;
+    padding: 10px !important;
+    background-color: #f9fafb !important;
+    border: 1px solid #e5e7eb !important;
+    font-size: 10px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .print-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    padding: 5px 15px;
+    font-size: 8px;
+    color: #6b7280;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .tipo-venda {
+    color: #22c55e !important;
+    font-weight: bold !important;
+    background-color: #f0fdf4 !important;
+    padding: 1px 4px !important;
+    border-radius: 3px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .tipo-compra {
+    color: #3b82f6 !important;
+    font-weight: bold !important;
+    background-color: #eff6ff !important;
+    padding: 1px 4px !important;
+    border-radius: 3px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .tipo-despesa {
+    color: #ef4444 !important;
+    font-weight: bold !important;
+    background-color: #fef2f2 !important;
+    padding: 1px 4px !important;
+    border-radius: 3px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  @page {
+    margin: 15mm;
+    size: A4;
+  }
+
+  .page-break-before {
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    page-break-after: always;
+  }
+
+  .page-break-avoid {
+    page-break-inside: avoid;
+  }
+
+  button,
+  .btn,
+  .no-print,
+  nav,
+  .sidebar,
+  .modal,
+  .tooltip,
+  .dropdown,
+  .fab-menu,
+  .scroll-to-top {
+    display: none !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

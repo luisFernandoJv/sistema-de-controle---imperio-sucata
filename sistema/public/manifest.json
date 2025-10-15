@@ -1,0 +1,184 @@
+{
+  "name": "Império Sucata - Sistema de Gestão Empresarial",
+  "short_name": "Império Sucata",
+  "description": "Sistema profissional de gestão para reciclagem de materiais com controle de estoque em tempo real, vendas, compras e relatórios avançados",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "utilities", "finance"],
+  "prefer_related_applications": false,
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+imperiosucata",
+      "url": "/?action=%s"
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "files",
+          "accept": ["image/*", "application/pdf", "text/csv", "application/json"]
+        }
+      ]
+    }
+  },
+  "handle_links": "preferred",
+  "capture_links": "new-client",
+  "id": "imperio-sucata-sistema",
+  "icons": [
+    {
+      "src": "/favicon_io/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/favicon_io/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/favicon_io/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon_io/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon_io/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/favicon_io/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Dashboard Principal - Visão Geral do Sistema"
+    },
+    {
+      "src": "/favicon_io/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Interface Mobile - Gestão de Transações"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nova Compra",
+      "short_name": "Compra",
+      "description": "Registrar nova compra de material",
+      "url": "/?action=new-purchase",
+      "icons": [
+        {
+          "src": "/favicon_io/favicon-32x32.png",
+          "sizes": "32x32",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Nova Venda",
+      "short_name": "Venda",
+      "description": "Registrar nova venda de material",
+      "url": "/?action=new-sale",
+      "icons": [
+        {
+          "src": "/favicon_io/favicon-32x32.png",
+          "sizes": "32x32",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Controle de Estoque",
+      "short_name": "Estoque",
+      "description": "Consultar e gerenciar estoque de materiais",
+      "url": "/?action=inventory",
+      "icons": [
+        {
+          "src": "/favicon_io/favicon-32x32.png",
+          "sizes": "32x32",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Relatórios Financeiros",
+      "short_name": "Relatórios",
+      "description": "Visualizar relatórios e análises financeiras",
+      "url": "/?action=reports",
+      "icons": [
+        {
+          "src": "/favicon_io/favicon-32x32.png",
+          "sizes": "32x32",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Painel",
+      "description": "Acessar painel principal do sistema",
+      "url": "/?action=dashboard",
+      "icons": [
+        {
+          "src": "/favicon_io/favicon-32x32.png",
+          "sizes": "32x32",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "iarc_rating_id": "",
+  "permissions": ["notifications", "persistent-storage", "background-sync", "push-messaging"],
+  "file_handlers": [
+    {
+      "action": "/",
+      "accept": {
+        "application/json": [".json"],
+        "text/csv": [".csv"],
+        "application/pdf": [".pdf"],
+        "image/*": [".jpg", ".jpeg", ".png", ".gif", ".webp"]
+      }
+    }
+  ],
+  "gcm_sender_id": "103953800507",
+  "gcm_user_visible_only": true,
+  "offline_enabled": true,
+  "version": "2.0.0",
+  "manifest_version": 3,
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}
