@@ -71,7 +71,7 @@ const formatCurrency = (value) => {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
-  }).format(value)
+  }).format(value || 0) // Garantir que value não seja undefined
 }
 
 const useToast = () => {
@@ -106,13 +106,13 @@ const useSavedNames = () => {
   useEffect(() => {
     const loadSavedNames = () => {
       try {
-        const saved = localStorage.getItem('recycling_saved_names')
+        const saved = localStorage.getItem("recycling_saved_names")
         if (saved) {
           const names = JSON.parse(saved)
           setSavedNames(names)
         }
       } catch (error) {
-        console.error('Erro ao carregar nomes salvos:', error)
+        console.error("Erro ao carregar nomes salvos:", error)
       }
     }
 
@@ -121,21 +121,21 @@ const useSavedNames = () => {
 
   // Salvar novo nome
   const saveName = (name) => {
-    if (!name || name.trim() === '') return
+    if (!name || name.trim() === "") return
 
     const trimmedName = name.trim()
-    setSavedNames(prev => {
+    setSavedNames((prev) => {
       // Evitar duplicatas (case insensitive)
-      const normalizedNames = prev.map(n => n.toLowerCase())
+      const normalizedNames = prev.map((n) => n.toLowerCase())
       if (normalizedNames.includes(trimmedName.toLowerCase())) {
         return prev
       }
 
       const newNames = [trimmedName, ...prev].slice(0, 20) // Limitar a 20 nomes
       try {
-        localStorage.setItem('recycling_saved_names', JSON.stringify(newNames))
+        localStorage.setItem("recycling_saved_names", JSON.stringify(newNames))
       } catch (error) {
-        console.error('Erro ao salvar nomes:', error)
+        console.error("Erro ao salvar nomes:", error)
       }
       return newNames
     })
@@ -143,12 +143,12 @@ const useSavedNames = () => {
 
   // Remover nome
   const removeName = (nameToRemove) => {
-    setSavedNames(prev => {
-      const newNames = prev.filter(name => name !== nameToRemove)
+    setSavedNames((prev) => {
+      const newNames = prev.filter((name) => name !== nameToRemove)
       try {
-        localStorage.setItem('recycling_saved_names', JSON.stringify(newNames))
+        localStorage.setItem("recycling_saved_names", JSON.stringify(newNames))
       } catch (error) {
-        console.error('Erro ao remover nome:', error)
+        console.error("Erro ao remover nome:", error)
       }
       return newNames
     })
@@ -157,7 +157,7 @@ const useSavedNames = () => {
   return {
     savedNames,
     saveName,
-    removeName
+    removeName,
   }
 }
 
@@ -171,8 +171,8 @@ const TransactionForm = ({ onSuccess, initialType = "compra", editingTransaction
     vendedor: "",
     observacoes: "",
     data: new Date(),
-    formaPagamento: "dinheiro", // dinheiro ou pix
-    numeroTransacao: "", // para PIX
+    formaPagamento: "dinheiro",
+    numeroTransacao: "",
   })
 
   const [inventory, setInventory] = useState({})
@@ -181,7 +181,7 @@ const TransactionForm = ({ onSuccess, initialType = "compra", editingTransaction
   const [isEditing, setIsEditing] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showNameSuggestions, setShowNameSuggestions] = useState(false)
-  
+
   const { toast } = useToast()
   const { savedNames, saveName, removeName } = useSavedNames()
 
@@ -189,8 +189,8 @@ const TransactionForm = ({ onSuccess, initialType = "compra", editingTransaction
     if (editingTransaction) {
       setIsEditing(true)
       setFormData({
-        tipo: editingTransaction.tipo || editingTransaction.type,
-        material: editingTransaction.material,
+        tipo: editingTransaction.tipo || editingTransaction.type || "compra",
+        material: editingTransaction.material || "ferro",
         quantidade: (editingTransaction.quantidade || editingTransaction.weight || "").toString(),
         precoUnitario: (editingTransaction.precoUnitario || editingTransaction.pricePerKg || "").toString(),
         vendedor: editingTransaction.vendedor || "",
@@ -217,11 +217,19 @@ const TransactionForm = ({ onSuccess, initialType = "compra", editingTransaction
   }
 
   const updatePrice = (type, material, inv) => {
-    if (inv[material]) {
-      const price = type === "compra" ? inv[material].precoCompra : inv[material].precoVenda
+    if (inv && inv[material]) {
+      const price = type === "compra" ? 
+        (inv[material].precoCompra || 0) : 
+        (inv[material].precoVenda || 0)
       setFormData((prev) => ({
         ...prev,
         precoUnitario: price.toString(),
+      }))
+    } else {
+      // Se não encontrar o material no inventário, definir preço como 0
+      setFormData((prev) => ({
+        ...prev,
+        precoUnitario: "0",
       }))
     }
   }
@@ -240,14 +248,24 @@ const TransactionForm = ({ onSuccess, initialType = "compra", editingTransaction
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
-    
-    // Mostrar sugestões quando o campo vendedor for focado ou quando começar a digitar
-    if (field === 'vendedor') {
+
+    if (field === "vendedor") {
       if (value.length > 0) {
         setShowNameSuggestions(true)
       } else {
         setShowNameSuggestions(false)
       }
+    }
+
+    // Atualizar preço quando o material ou tipo mudar
+    if ((field === "material" || field === "tipo") && value) {
+      loadInventory().then((inv) => {
+        updatePrice(
+          field === "tipo" ? value : formData.tipo,
+          field === "material" ? value : formData.material,
+          inv
+        )
+      })
     }
   }
 
@@ -347,8 +365,6 @@ const TransactionForm = ({ onSuccess, initialType = "compra", editingTransaction
       setSaving(true)
 
       const transactionDate = formData.data instanceof Date ? formData.data : new Date(formData.data)
-
-      // Garantir que a data tenha hora, minuto e segundo zerados para consistência
       transactionDate.setHours(12, 0, 0, 0)
 
       const transaction = {
@@ -361,8 +377,7 @@ const TransactionForm = ({ onSuccess, initialType = "compra", editingTransaction
 
       console.log("[v0] Submitting transaction with date:", transactionDate.toISOString())
 
-      // Salvar o nome do vendedor/cliente se não estiver vazio
-      if (formData.vendedor && formData.vendedor.trim() !== '') {
+      if (formData.vendedor && formData.vendedor.trim() !== "") {
         saveName(formData.vendedor.trim())
       }
 
@@ -423,11 +438,8 @@ const TransactionForm = ({ onSuccess, initialType = "compra", editingTransaction
 
   const handleSaveAndContinue = async (e) => {
     e.preventDefault()
-
-    // Salvar transação atual
     await handleSubmit(e)
 
-    // Manter tipo e data, limpar apenas quantidade, preço e observações
     setFormData((prev) => ({
       ...prev,
       quantidade: "",
@@ -435,36 +447,49 @@ const TransactionForm = ({ onSuccess, initialType = "compra", editingTransaction
       observacoes: "",
       vendedor: "",
       numeroTransacao: "",
-      // Manter: tipo, material, data, formaPagamento
     }))
 
-    // Focar no campo quantidade
     setTimeout(() => {
       document.getElementById("quantidade")?.focus()
     }, 100)
   }
 
-  // Selecionar nome das sugestões
   const handleSelectName = (name) => {
-    setFormData(prev => ({ ...prev, vendedor: name }))
+    setFormData((prev) => ({ ...prev, vendedor: name }))
     setShowNameSuggestions(false)
   }
 
-  // Filtrar sugestões baseadas no texto digitado
-  const filteredSuggestions = savedNames.filter(name =>
-    name.toLowerCase().includes(formData.vendedor.toLowerCase())
-  ).slice(0, 5) // Mostrar apenas 5 sugestões
+  const filteredSuggestions = savedNames
+    .filter((name) => name.toLowerCase().includes(formData.vendedor.toLowerCase()))
+    .slice(0, 5)
+
+  // CORREÇÃO: Função segura para calcular margem de lucro
+  const calculateProfitMargin = () => {
+    if (!inventory[formData.material] || !inventory[formData.material].precoCompra) {
+      return 0
+    }
+    
+    const currentPrice = Number.parseFloat(formData.precoUnitario) || 0
+    const purchasePrice = inventory[formData.material].precoCompra || 0
+    
+    if (purchasePrice === 0) return 0
+    
+    return currentPrice - purchasePrice
+  }
 
   const materials = [
     { value: "ferro", label: "Ferro", color: "bg-gray-600" },
     { value: "aluminio", label: "Alumínio", color: "bg-blue-600" },
     { value: "cobre", label: "Cobre", color: "bg-orange-600" },
+    { value: "cobre_mel", label: "Cobre Mel", color: "bg-amber-600" },
+    { value: "bronze", label: "Bronze", color: "bg-amber-700" }, // Corrigido: cor diferente do cobre_mel
+    { value: "magnesio", label: "Magnésio", color: "bg-slate-600" },
     { value: "latinha", label: "Latinha", color: "bg-green-600" },
     { value: "panela", label: "Panela", color: "bg-purple-600" },
     { value: "bloco2", label: "Bloco 2°", color: "bg-red-600" },
     { value: "chapa", label: "Chapa", color: "bg-yellow-600" },
     { value: "perfil pintado", label: "Perfil pintado", color: "bg-indigo-600" },
-    { value: "perfil natural", label: "Perfil natural", color: "bg-indigo-600" },
+    { value: "perfil natural", label: "Perfil natural", color: "bg-indigo-500" },
     { value: "bloco", label: "Bloco", color: "bg-pink-600" },
     { value: "metal", label: "Metal", color: "bg-gray-700" },
     { value: "inox", label: "Inox", color: "bg-blue-700" },
@@ -578,7 +603,7 @@ const TransactionForm = ({ onSuccess, initialType = "compra", editingTransaction
             3. Forma de Pagamento
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4">
             <Button
               type="button"
               variant={formData.formaPagamento === "dinheiro" ? "default" : "outline"}
@@ -601,6 +626,19 @@ const TransactionForm = ({ onSuccess, initialType = "compra", editingTransaction
               <span className="text-2xl">📱</span>
               <span className="text-base sm:text-lg font-semibold">PIX</span>
             </Button>
+
+            <Button
+              type="button"
+              variant={formData.formaPagamento === "emprestimo_divida" ? "default" : "outline"}
+              onClick={() => {
+                handleInputChange("formaPagamento", "emprestimo_divida")
+                handleInputChange("numeroTransacao", "")
+              }}
+              className="h-16 sm:h-20 flex-col space-y-1 sm:space-y-2 transition-all duration-300"
+            >
+              <span className="text-2xl">📋</span>
+              <span className="text-base sm:text-lg font-semibold">Empréstimo/Dívida</span>
+            </Button>
           </div>
 
           {formData.formaPagamento === "pix" && (
@@ -617,6 +655,15 @@ const TransactionForm = ({ onSuccess, initialType = "compra", editingTransaction
                 placeholder="Ex: E12345678901234567890123456789012345"
               />
               <p className="text-xs text-gray-500">💡 Dica: Você pode encontrar este número no comprovante do PIX</p>
+            </div>
+          )}
+
+          {formData.formaPagamento === "emprestimo_divida" && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <p className="text-sm text-yellow-800">
+                <span className="font-semibold">ℹ️ Informação:</span> Esta transação será registrada como empréstimo ou
+                dívida. O valor ficará pendente até a quitação.
+              </p>
             </div>
           )}
         </Card>
@@ -738,9 +785,7 @@ const TransactionForm = ({ onSuccess, initialType = "compra", editingTransaction
                     </div>
                   ))}
                   {filteredSuggestions.length === 0 && formData.vendedor && (
-                    <div className="p-3 text-center text-sm text-gray-500">
-                      Nenhum nome encontrado
-                    </div>
+                    <div className="p-3 text-center text-sm text-gray-500">Nenhum nome encontrado</div>
                   )}
                 </div>
               )}
@@ -792,7 +837,11 @@ const TransactionForm = ({ onSuccess, initialType = "compra", editingTransaction
               <div className="text-center p-3 bg-blue-50 rounded-lg">
                 <p className="text-xs sm:text-sm text-gray-600">Forma de Pagamento</p>
                 <p className="text-lg sm:text-xl font-bold text-blue-600">
-                  {formData.formaPagamento === "pix" ? "📱 PIX" : "💵 Dinheiro"}
+                  {formData.formaPagamento === "pix"
+                    ? "📱 PIX"
+                    : formData.formaPagamento === "emprestimo_divida"
+                      ? "📋 Empréstimo"
+                      : "💵 Dinheiro"}
                 </p>
                 {formData.formaPagamento === "pix" && formData.numeroTransacao && (
                   <p className="text-xs text-gray-500 mt-1 truncate">{formData.numeroTransacao.substring(0, 15)}...</p>

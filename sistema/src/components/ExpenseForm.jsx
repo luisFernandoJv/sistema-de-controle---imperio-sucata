@@ -132,6 +132,9 @@ const ExpenseForm = ({ onSuccess }) => {
     { value: "funcionarios", label: "Funcionários" },
     { value: "impostos", label: "Impostos/Taxas" },
     { value: "equipamentos", label: "Equipamentos" },
+    { value: "p_casa", label: "P/Casa" },
+    { value: "devolucao", label: "Devolução" },
+    { value: "refeicao", label: "Refeição" },
     { value: "outros", label: "Outros" },
   ]
 
@@ -242,7 +245,7 @@ const ExpenseForm = ({ onSuccess }) => {
             Forma de Pagamento
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4">
             <button
               type="button"
               onClick={() => {
@@ -271,6 +274,22 @@ const ExpenseForm = ({ onSuccess }) => {
               <span className="text-2xl">📱</span>
               <span className="text-base sm:text-lg font-semibold">PIX</span>
             </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                handleInputChange("formaPagamento", "emprestimo_divida")
+                handleInputChange("numeroTransacao", "")
+              }}
+              className={`h-16 sm:h-20 flex flex-col items-center justify-center space-y-1 sm:space-y-2 transition-all duration-300 rounded-md border-2 ${
+                formData.formaPagamento === "emprestimo_divida"
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+              }`}
+            >
+              <span className="text-2xl">📋</span>
+              <span className="text-base sm:text-lg font-semibold">Empréstimo/Dívida</span>
+            </button>
           </div>
 
           {formData.formaPagamento === "pix" && (
@@ -287,6 +306,15 @@ const ExpenseForm = ({ onSuccess }) => {
                 placeholder="Ex: E12345678901234567890123456789012345"
               />
               <p className="text-xs text-gray-500">💡 Dica: Você pode encontrar este número no comprovante do PIX</p>
+            </div>
+          )}
+
+          {formData.formaPagamento === "emprestimo_divida" && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <p className="text-sm text-yellow-800">
+                <span className="font-semibold">ℹ️ Informação:</span> Esta despesa será registrada como empréstimo ou
+                dívida. O valor ficará pendente até a quitação.
+              </p>
             </div>
           )}
         </Card>
@@ -312,7 +340,13 @@ const ExpenseForm = ({ onSuccess }) => {
               </p>
               <p className="text-sm text-gray-500 mt-1">
                 Pagamento:{" "}
-                <span className="font-medium">{formData.formaPagamento === "pix" ? "📱 PIX" : "💵 Dinheiro"}</span>
+                <span className="font-medium">
+                  {formData.formaPagamento === "pix"
+                    ? "📱 PIX"
+                    : formData.formaPagamento === "emprestimo_divida"
+                      ? "📋 Empréstimo/Dívida"
+                      : "💵 Dinheiro"}
+                </span>
               </p>
               {formData.formaPagamento === "pix" && formData.numeroTransacao && (
                 <p className="text-xs text-gray-400 mt-1">Transação: {formData.numeroTransacao.substring(0, 20)}...</p>

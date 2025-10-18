@@ -123,6 +123,9 @@ const Inventory = () => {
     // Metais Não-Ferrosos
     { key: "aluminio", name: "Alumínio", category: "nao-ferrosos", color: "bg-blue-100", icon: "🔧", minStock: 80 },
     { key: "cobre", name: "Cobre", category: "nao-ferrosos", color: "bg-orange-100", icon: "🔶", minStock: 50 },
+    { key: "bronze", name: "Bronze", category: "nao-ferrosos", color: "bg-orange-100", icon: "🔶", minStock: 55 },
+    { key: "cobre_mel", name: "Cobre Mel", category: "nao-ferrosos", color: "bg-amber-100", icon: "🍯", minStock: 40 },
+    { key: "magnesio", name: "Magnésio", category: "nao-ferrosos", color: "bg-slate-100", icon: "⚗️", minStock: 35 },
     {
       key: "rad_cobre",
       name: "Rad. Cobre",

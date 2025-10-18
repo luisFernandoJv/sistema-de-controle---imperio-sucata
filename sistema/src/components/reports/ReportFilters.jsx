@@ -11,6 +11,7 @@ const ReportFilters = ({ filters, setFilters }) => {
     { value: "ferro", label: "🔩 Ferro" },
     { value: "aluminio", label: "⚪ Alumínio" },
     { value: "cobre", label: "🟤 Cobre" },
+    { value: "bronze", label: "🟤 Bronze" },
     { value: "latinha", label: "🥤 Latinha" },
     { value: "panela", label: "🍳 Panela" },
     { value: "bloco2", label: "🧱 Bloco 2°" },

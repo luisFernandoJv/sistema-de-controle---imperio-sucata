@@ -101,6 +101,7 @@ function App() {
       icon: BarChart3,
       color: "text-blue-600",
       gradient: "from-blue-500 to-blue-600",
+      description: "Visão geral do negócio",
     },
     {
       id: "transaction",
@@ -108,6 +109,7 @@ function App() {
       icon: TrendingUp,
       color: "text-green-600",
       gradient: "from-green-500 to-green-600",
+      description: "Compras e vendas",
     },
     {
       id: "inventory",
@@ -115,14 +117,23 @@ function App() {
       icon: Package,
       color: "text-purple-600",
       gradient: "from-purple-500 to-purple-600",
+      description: "Controle de materiais",
     },
-    { id: "expenses", label: "Despesas", icon: DollarSign, color: "text-red-600", gradient: "from-red-500 to-red-600" },
+    {
+      id: "expenses",
+      label: "Despesas",
+      icon: DollarSign,
+      color: "text-red-600",
+      gradient: "from-red-500 to-red-600",
+      description: "Gastos operacionais",
+    },
     {
       id: "reports",
       label: "Relatórios",
       icon: FileText,
       color: "text-orange-600",
       gradient: "from-orange-500 to-orange-600",
+      description: "Análises e exportações",
     },
   ]
 
@@ -174,10 +185,15 @@ function App() {
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-gray-100">
-        <header className="bg-white/90 backdrop-blur-xl shadow-xl border-b-4 border-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 sticky top-0 z-40 no-print">
+        <header className="bg-white/95 backdrop-blur-xl shadow-2xl border-b-4 border-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 sticky top-0 z-50 no-print">
           <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-20">
-              <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                whileHover={{ scale: 1.05 }}
+                className="flex items-center"
+              >
                 <Logo />
               </motion.div>
 
@@ -189,22 +205,28 @@ function App() {
                       key={item.id}
                       initial={{ opacity: 0, y: -20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      whileHover={{ scale: 1.05 }}
+                      transition={{ delay: index * 0.08 }}
+                      whileHover={{ scale: 1.08, y: -2 }}
                       whileTap={{ scale: 0.95 }}
+                      className="relative group"
                     >
                       <Button
                         variant={activeTab === item.id ? "default" : "ghost"}
                         onClick={() => handleQuickAction(item.id)}
-                        className={`flex items-center space-x-2 transition-all duration-300 h-11 px-4 ${
+                        className={`flex items-center space-x-2 transition-all duration-300 h-12 px-5 ${
                           activeTab === item.id
                             ? `bg-gradient-to-r ${item.gradient} text-white shadow-lg hover:shadow-xl`
                             : "hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50 border border-transparent hover:border-blue-200"
                         }`}
                       >
                         <Icon className={`h-5 w-5 ${activeTab === item.id ? "text-white" : item.color}`} />
-                        <span className="font-semibold">{item.label}</span>
+                        <span className="font-semibold text-sm">{item.label}</span>
                       </Button>
+
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                        {item.description}
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-b-gray-900"></div>
+                      </div>
                     </motion.div>
                   )
                 })}
@@ -213,13 +235,13 @@ function App() {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.5 }}
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.08, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   <Button
                     variant="ghost"
                     onClick={handleLogout}
-                    className="ml-4 text-red-600 hover:bg-red-50 hover:text-red-700 border border-transparent hover:border-red-200 h-11 px-4 font-semibold transition-all"
+                    className="ml-4 text-red-600 hover:bg-red-50 hover:text-red-700 border border-transparent hover:border-red-200 h-12 px-5 font-semibold transition-all"
                   >
                     <LogOut className="h-5 w-5 mr-2" />
                     Sair
@@ -230,10 +252,13 @@ function App() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 transition-all h-12 w-12"
+                className="md:hidden hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 transition-all h-12 w-12 rounded-full"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
-                <motion.div animate={{ rotate: isMobileMenuOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>
+                <motion.div
+                  animate={{ rotate: isMobileMenuOpen ? 90 : 0 }}
+                  transition={{ duration: 0.3, type: "spring" }}
+                >
                   {isMobileMenuOpen ? (
                     <X className="h-7 w-7 text-red-600" />
                   ) : (
@@ -250,49 +275,57 @@ function App() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="md:hidden bg-gradient-to-br from-white via-blue-50 to-cyan-50 backdrop-blur-xl border-t-2 border-blue-200"
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="md:hidden bg-gradient-to-br from-white via-blue-50 to-cyan-50 backdrop-blur-xl border-t-2 border-blue-200 shadow-inner"
               >
-                <div className="px-4 py-4 space-y-3">
+                <div className="px-4 py-4 space-y-2">
                   {menuItems.map((item, index) => {
                     const Icon = item.icon
                     return (
                       <motion.div
                         key={item.id}
-                        initial={{ opacity: 0, x: -20 }}
+                        initial={{ opacity: 0, x: -30 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        whileTap={{ scale: 0.98 }}
+                        transition={{ delay: index * 0.08, type: "spring" }}
+                        whileTap={{ scale: 0.97 }}
                       >
                         <Button
                           variant={activeTab === item.id ? "default" : "ghost"}
                           onClick={() => handleQuickAction(item.id)}
-                          className={`w-full justify-start text-lg h-16 transition-all duration-300 ${
+                          className={`w-full justify-start text-base h-16 transition-all duration-300 ${
                             activeTab === item.id
                               ? `bg-gradient-to-r ${item.gradient} text-white shadow-lg`
                               : "hover:bg-white hover:shadow-md border border-transparent hover:border-blue-200"
                           }`}
                         >
                           <Icon className={`h-6 w-6 mr-3 ${activeTab === item.id ? "text-white" : item.color}`} />
-                          <span className="font-semibold">{item.label}</span>
+                          <div className="flex flex-col items-start">
+                            <span className="font-semibold">{item.label}</span>
+                            <span className={`text-xs ${activeTab === item.id ? "text-white/80" : "text-gray-500"}`}>
+                              {item.description}
+                            </span>
+                          </div>
                         </Button>
                       </motion.div>
                     )
                   })}
 
                   <motion.div
-                    initial={{ opacity: 0, x: -20 }}
+                    initial={{ opacity: 0, x: -30 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: menuItems.length * 0.1 }}
-                    whileTap={{ scale: 0.98 }}
+                    transition={{ delay: menuItems.length * 0.08, type: "spring" }}
+                    whileTap={{ scale: 0.97 }}
                   >
                     <Button
                       variant="ghost"
                       onClick={handleLogout}
-                      className="w-full justify-start text-lg h-16 text-red-600 hover:bg-red-50 hover:text-red-700 border border-transparent hover:border-red-200 font-semibold"
+                      className="w-full justify-start text-base h-16 text-red-600 hover:bg-red-50 hover:text-red-700 border border-transparent hover:border-red-200 font-semibold mt-2"
                     >
                       <LogOut className="h-6 w-6 mr-3" />
-                      Sair do Sistema
+                      <div className="flex flex-col items-start">
+                        <span className="font-semibold">Sair do Sistema</span>
+                        <span className="text-xs text-red-500">Encerrar sessão</span>
+                      </div>
                     </Button>
                   </motion.div>
                 </div>

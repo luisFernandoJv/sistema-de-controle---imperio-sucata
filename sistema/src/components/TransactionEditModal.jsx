@@ -108,6 +108,9 @@ const TransactionEditModal = ({ transaction, onSave, onCancel }) => {
     "Alumínio (Lata)",
     "Alumínio (Perfil)",
     "Cobre",
+    "Cobre Mel",
+    "Bronze",
+    "Magnésio",
     "Ferro",
     "Aço",
     "Bronze",
@@ -282,6 +285,7 @@ const TransactionEditModal = ({ transaction, onSave, onCancel }) => {
                 >
                   <option value="dinheiro">💵 Dinheiro</option>
                   <option value="pix">📱 PIX</option>
+                  <option value="emprestimo_divida">📋 Empréstimo/Dívida</option>
                 </select>
               </div>
 

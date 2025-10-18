@@ -4,6 +4,40 @@ import autoTable from 'jspdf-autotable'
 import { formatCurrency, formatDate, getMaterialName } from "./reportUtils"
 
 // =============================================
+// CONFIGURAÇÕES DO PDF
+// =============================================
+
+const PDF_CONFIG = {
+  MARGIN: {
+    TOP: 20,
+    LEFT: 15,
+    RIGHT: 15,
+    BOTTOM: 20
+  },
+  FONT: {
+    SIZE: {
+      LARGE: 16,
+      MEDIUM: 12,
+      SMALL: 9,
+      XSMALL: 8
+    }
+  },
+  TABLE: {
+    PADDING: 3,
+    LINE_WIDTH: 0.1
+  },
+  COLORS: {
+    PRIMARY: [37, 99, 235],
+    SUCCESS: [22, 163, 74],
+    WARNING: [234, 88, 12],
+    DANGER: [220, 38, 38],
+    INFO: [59, 130, 246],
+    GRAY: [100, 100, 100],
+    LIGHT_GRAY: [200, 200, 200]
+  }
+}
+
+// =============================================
 // FUNÇÕES DE CÁLCULO DE ESTATÍSTICAS AVANÇADAS
 // =============================================
 
@@ -286,23 +320,25 @@ const addHeader = (doc, title, period, totalTransactions) => {
   
   // Logo e título
   doc.setFontSize(18)
-  doc.setTextColor(37, 99, 235)
-  doc.text("IMPÉRIO SUCATA", 20, 20)
+  doc.setTextColor(...PDF_CONFIG.COLORS.PRIMARY)
+  doc.text("IMPÉRIO SUCATA", PDF_CONFIG.MARGIN.LEFT, PDF_CONFIG.MARGIN.TOP)
   
   doc.setFontSize(14)
   doc.setTextColor(0, 0, 0)
-  doc.text(title.toUpperCase(), 20, 32)
+  doc.text(title.toUpperCase(), PDF_CONFIG.MARGIN.LEFT, PDF_CONFIG.MARGIN.TOP + 12)
   
   // Informações do período
   doc.setFontSize(9)
-  doc.setTextColor(100, 100, 100)
-  doc.text(`Período: ${period}`, 20, 42)
-  doc.text(`Transações: ${totalTransactions}`, 20, 48)
-  doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, pageWidth - 20, 42, { align: "right" })
+  doc.setTextColor(...PDF_CONFIG.COLORS.GRAY)
+  doc.text(`Período: ${period}`, PDF_CONFIG.MARGIN.LEFT, PDF_CONFIG.MARGIN.TOP + 22)
+  doc.text(`Transações: ${totalTransactions}`, PDF_CONFIG.MARGIN.LEFT, PDF_CONFIG.MARGIN.TOP + 28)
+  doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, pageWidth - PDF_CONFIG.MARGIN.RIGHT, PDF_CONFIG.MARGIN.TOP + 22, { align: "right" })
   
   // Linha separadora
-  doc.setDrawColor(200, 200, 200)
-  doc.line(20, 53, pageWidth - 20, 53)
+  doc.setDrawColor(...PDF_CONFIG.COLORS.LIGHT_GRAY)
+  doc.line(PDF_CONFIG.MARGIN.LEFT, PDF_CONFIG.MARGIN.TOP + 33, pageWidth - PDF_CONFIG.MARGIN.RIGHT, PDF_CONFIG.MARGIN.TOP + 33)
+  
+  return PDF_CONFIG.MARGIN.TOP + 40
 }
 
 /**
@@ -310,176 +346,156 @@ const addHeader = (doc, title, period, totalTransactions) => {
  */
 const addKPISection = (doc, stats, yPos) => {
   const pageWidth = doc.internal.pageSize.width
-  const kpiWidth = (pageWidth - 50) / 4
+  const availableWidth = pageWidth - (PDF_CONFIG.MARGIN.LEFT + PDF_CONFIG.MARGIN.RIGHT)
+  const kpiWidth = (availableWidth - 15) / 4
   let currentY = yPos
 
   doc.setFontSize(12)
   doc.setTextColor(0, 0, 0)
-  doc.text("VISÃO GERAL DO PERÍODO", 20, currentY)
-  currentY += 8
+  doc.text("VISÃO GERAL DO PERÍODO", PDF_CONFIG.MARGIN.LEFT, currentY)
+  currentY += 10
 
   const kpis = [
     { 
       label: "RECEITA TOTAL", 
       value: formatCurrency(stats.totalSales || 0),
       sublabel: `${stats.salesCount} vendas`,
-      color: [22, 163, 74],
-      icon: ""
+      color: PDF_CONFIG.COLORS.SUCCESS
     },
     { 
       label: "CUSTO AQUISIÇÃO", 
       value: formatCurrency(stats.totalPurchases || 0),
       sublabel: `${stats.purchasesCount} compras`,
-      color: [234, 88, 12],
-      icon: ""
+      color: PDF_CONFIG.COLORS.WARNING
     },
     { 
       label: "DESPESAS", 
       value: formatCurrency(stats.totalExpenses || 0),
       sublabel: `${stats.expensesCount} despesas`,
-      color: [220, 38, 38],
-      icon: ""
+      color: PDF_CONFIG.COLORS.DANGER
     },
     { 
       label: "LUCRO LÍQUIDO", 
       value: formatCurrency(stats.totalProfit || 0),
       sublabel: `Margem: ${(stats.profitMargin || 0).toFixed(1)}%`,
-      color: stats.totalProfit >= 0 ? [22, 163, 74] : [220, 38, 38],
-      icon: stats.totalProfit >= 0 ? "" : ""
+      color: stats.totalProfit >= 0 ? PDF_CONFIG.COLORS.SUCCESS : PDF_CONFIG.COLORS.DANGER
     }
   ]
 
   kpis.forEach((kpi, index) => {
-    const x = 20 + index * (kpiWidth + 2)
+    const x = PDF_CONFIG.MARGIN.LEFT + index * (kpiWidth + 5)
     
     // Fundo do KPI
     doc.setFillColor(248, 250, 252)
-    doc.roundedRect(x, currentY, kpiWidth, 22, 2, 2, 'F')
+    doc.roundedRect(x, currentY, kpiWidth, 25, 3, 3, 'F')
     doc.setDrawColor(226, 232, 240)
-    doc.roundedRect(x, currentY, kpiWidth, 22, 2, 2, 'S')
-    
-    // Ícone
-    doc.setFontSize(10)
-    doc.setTextColor(...kpi.color)
-    doc.text(kpi.icon, x + 5, currentY + 8)
+    doc.roundedRect(x, currentY, kpiWidth, 25, 3, 3, 'S')
     
     // Label
-    doc.setFontSize(7)
-    doc.setTextColor(100, 100, 100)
-    doc.text(kpi.label, x + 12, currentY + 7)
+    doc.setFontSize(8)
+    doc.setTextColor(...PDF_CONFIG.COLORS.GRAY)
+    doc.text(kpi.label, x + (kpiWidth / 2), currentY + 7, { align: "center" })
     
     // Valor principal
-    doc.setFontSize(9)
+    doc.setFontSize(10)
     doc.setFont(undefined, 'bold')
     doc.setTextColor(...kpi.color)
-    const valueX = x + (kpiWidth / 2)
-    doc.text(kpi.value, valueX, currentY + 14, { align: "center" })
+    doc.text(kpi.value, x + (kpiWidth / 2), currentY + 15, { align: "center" })
     
     // Sublabel
-    doc.setFontSize(6)
+    doc.setFontSize(7)
     doc.setFont(undefined, 'normal')
-    doc.setTextColor(100, 100, 100)
-    doc.text(kpi.sublabel, valueX, currentY + 18, { align: "center" })
+    doc.setTextColor(...PDF_CONFIG.COLORS.GRAY)
+    doc.text(kpi.sublabel, x + (kpiWidth / 2), currentY + 20, { align: "center" })
   })
 
-  return currentY + 30
+  return currentY + 35
 }
 
 /**
- * Análise comparativa de materiais com preços de compra e venda
+ * Análise comparativa de materiais completa
  */
 const addMaterialAnalysis = (doc, stats, yPos) => {
   let currentY = yPos
 
   doc.setFontSize(12)
   doc.setTextColor(0, 0, 0)
-  doc.text("ANÁLISE COMPARATIVA POR MATERIAL - TOP 15", 20, currentY)
-  currentY += 8
+  doc.text("ANÁLISE COMPARATIVA POR MATERIAL - TOP 15", PDF_CONFIG.MARGIN.LEFT, currentY)
+  currentY += 10
 
   if (stats.topMaterials && stats.topMaterials.length > 0) {
     const tableData = stats.topMaterials.map((item, index) => [
-      { content: (index + 1).toString(), styles: { fontStyle: 'bold', fontSize: 7 } },
-      { 
-        content: getMaterialName(item.material).substring(0, 20), 
-        styles: { fontSize: 7 } 
-      },
-      { 
-        content: formatCurrency(item.precoMedioCompra || 0), 
-        styles: { halign: 'right', fontSize: 7, textColor: [234, 88, 12] } 
-      },
-      { 
-        content: formatCurrency(item.precoMedioVenda || 0), 
-        styles: { halign: 'right', fontSize: 7, textColor: [22, 163, 74] } 
-      },
-      { 
-        content: formatCurrency(item.vendas || 0), 
-        styles: { halign: 'right', fontSize: 7 } 
-      },
-      { 
-        content: formatCurrency(item.compras || 0), 
-        styles: { halign: 'right', fontSize: 7 } 
-      },
-      { 
-        content: formatCurrency(item.lucro || 0), 
-        styles: { 
-          halign: 'right', 
-          fontSize: 7, 
-          fontStyle: 'bold',
-          textColor: item.lucro >= 0 ? [22, 163, 74] : [220, 38, 38] 
-        } 
-      },
-      { 
-        content: `${(item.margemLucro || 0).toFixed(1)}%`, 
-        styles: { 
-          halign: 'right', 
-          fontSize: 7,
-          textColor: item.margemLucro >= 0 ? [22, 163, 74] : [220, 38, 38] 
-        } 
-      },
-      { 
-        content: `${((item.quantidadeVendas || 0) + (item.quantidadeCompras || 0)).toFixed(0)} kg`, 
-        styles: { halign: 'right', fontSize: 7 } 
-      }
+      (index + 1).toString(),
+      getMaterialName(item.material),
+      formatCurrency(item.precoMedioCompra || 0),
+      formatCurrency(item.precoMedioVenda || 0),
+      formatCurrency(item.vendas || 0),
+      formatCurrency(item.compras || 0),
+      formatCurrency(item.lucro || 0),
+      `${(item.margemLucro || 0).toFixed(1)}%`,
+      `${((item.quantidadeVendas || 0) + (item.quantidadeCompras || 0)).toFixed(0)} kg`
     ])
 
     autoTable(doc, {
       startY: currentY,
       head: [[
-        '#', 'Material', 'Preço Compra', 'Preço Venda', 'Total Vendas', 'Total Compras', 
-        'Lucro', 'Margem', 'Quantidade'
+        '#', 'Material', 'Preço Compra Médio', 'Preço Venda Médio', 'Total Vendas', 
+        'Total Compras', 'Lucro Líquido', 'Margem %', 'Quantidade Total'
       ]],
       body: tableData,
       theme: 'grid',
       headStyles: { 
-        fillColor: [37, 99, 235],
+        fillColor: PDF_CONFIG.COLORS.PRIMARY,
         textColor: 255,
         fontStyle: 'bold',
-        fontSize: 7
+        fontSize: PDF_CONFIG.FONT.SIZE.XSMALL
       },
-      styles: { 
-        fontSize: 7,
-        cellPadding: 1.5,
-        lineWidth: 0.1
+      bodyStyles: { 
+        fontSize: PDF_CONFIG.FONT.SIZE.XSMALL,
+        cellPadding: PDF_CONFIG.TABLE.PADDING,
+        lineWidth: PDF_CONFIG.TABLE.LINE_WIDTH
       },
       columnStyles: {
-        0: { cellWidth: 8 },
-        1: { cellWidth: 25 },
-        2: { cellWidth: 18 },
-        3: { cellWidth: 18 },
-        4: { cellWidth: 18 },
-        5: { cellWidth: 18 },
-        6: { cellWidth: 18 },
-        7: { cellWidth: 12 },
-        8: { cellWidth: 15 }
+        0: { cellWidth: 10, halign: 'center' },
+        1: { cellWidth: 30 },
+        2: { cellWidth: 22, halign: 'right' },
+        3: { cellWidth: 22, halign: 'right' },
+        4: { cellWidth: 22, halign: 'right' },
+        5: { cellWidth: 22, halign: 'right' },
+        6: { 
+          cellWidth: 22, 
+          halign: 'right',
+          fontStyle: 'bold',
+          textColor: (rowIndex, column, row) => {
+            const value = row[6]
+            return value.includes('-') ? PDF_CONFIG.COLORS.DANGER : PDF_CONFIG.COLORS.SUCCESS
+          }
+        },
+        7: { 
+          cellWidth: 15, 
+          halign: 'right',
+          textColor: (rowIndex, column, row) => {
+            const margin = parseFloat(row[7])
+            return margin < 0 ? PDF_CONFIG.COLORS.DANGER : PDF_CONFIG.COLORS.SUCCESS
+          }
+        },
+        8: { cellWidth: 20, halign: 'right' }
       },
-      margin: { left: 20, right: 20 },
+      margin: { 
+        left: PDF_CONFIG.MARGIN.LEFT, 
+        right: PDF_CONFIG.MARGIN.RIGHT 
+      },
+      styles: {
+        overflow: 'linebreak',
+        cellWidth: 'wrap'
+      }
     })
 
-    currentY = doc.lastAutoTable.finalY + 8
+    currentY = doc.lastAutoTable.finalY + 10
   } else {
     doc.setFontSize(9)
-    doc.setTextColor(100, 100, 100)
-    doc.text("Nenhum dado de material disponível para análise", 25, currentY)
+    doc.setTextColor(...PDF_CONFIG.COLORS.GRAY)
+    doc.text("Nenhum dado de material disponível para análise", PDF_CONFIG.MARGIN.LEFT + 5, currentY)
     currentY += 12
   }
 
@@ -494,41 +510,71 @@ const addPerformanceAnalysis = (doc, stats, yPos) => {
 
   doc.setFontSize(12)
   doc.setTextColor(0, 0, 0)
-  doc.text("MÉTRICAS DE PERFORMANCE", 20, currentY)
-  currentY += 8
+  doc.text("MÉTRICAS DE PERFORMANCE AVANÇADAS", PDF_CONFIG.MARGIN.LEFT, currentY)
+  currentY += 10
 
   const metrics = [
-    { label: "Ticket Médio de Venda", value: formatCurrency(stats.performanceMetrics.ticketMedioVenda || 0), color: [22, 163, 74] },
-    { label: "Ticket Médio de Compra", value: formatCurrency(stats.performanceMetrics.ticketMedioCompra || 0), color: [234, 88, 12] },
-    { label: "Rotatividade de Estoque", value: (stats.performanceMetrics.rotatividadeEstoque || 0).toFixed(2), color: [59, 130, 246] },
-    { label: "Dias por Venda", value: (stats.performanceMetrics.diasVendaMedia || 0).toFixed(1), color: [139, 69, 255] },
+    { 
+      label: "Ticket Médio de Venda", 
+      value: formatCurrency(stats.performanceMetrics.ticketMedioVenda || 0), 
+      description: "Valor médio por venda",
+      color: PDF_CONFIG.COLORS.SUCCESS 
+    },
+    { 
+      label: "Ticket Médio de Compra", 
+      value: formatCurrency(stats.performanceMetrics.ticketMedioCompra || 0), 
+      description: "Valor médio por compra",
+      color: PDF_CONFIG.COLORS.WARNING 
+    },
+    { 
+      label: "Rotatividade de Estoque", 
+      value: (stats.performanceMetrics.rotatividadeEstoque || 0).toFixed(2), 
+      description: "Vendas / Compras",
+      color: PDF_CONFIG.COLORS.INFO 
+    },
+    { 
+      label: "Dias por Venda", 
+      value: (stats.performanceMetrics.diasVendaMedia || 0).toFixed(1), 
+      description: "Média de dias entre vendas",
+      color: [139, 69, 255] 
+    },
   ]
 
   const metricWidth = (doc.internal.pageSize.width - 50) / 2
-  let xPos = 20
+  let xPos = PDF_CONFIG.MARGIN.LEFT
 
   metrics.forEach((metric, index) => {
     if (index === 2) {
-      xPos = 20
-      currentY += 20
+      xPos = PDF_CONFIG.MARGIN.LEFT
+      currentY += 25
     }
 
     doc.setFillColor(248, 250, 252)
-    doc.roundedRect(xPos, currentY, metricWidth, 16, 2, 2, 'F')
+    doc.roundedRect(xPos, currentY, metricWidth, 20, 2, 2, 'F')
+    doc.setDrawColor(226, 232, 240)
+    doc.roundedRect(xPos, currentY, metricWidth, 20, 2, 2, 'S')
     
+    // Label
     doc.setFontSize(8)
-    doc.setTextColor(100, 100, 100)
-    doc.text(metric.label, xPos + 5, currentY + 6)
+    doc.setTextColor(...PDF_CONFIG.COLORS.GRAY)
+    doc.text(metric.label, xPos + 8, currentY + 7)
     
-    doc.setFontSize(9)
+    // Valor
+    doc.setFontSize(10)
     doc.setFont(undefined, 'bold')
     doc.setTextColor(...metric.color)
-    doc.text(metric.value, xPos + (metricWidth / 2), currentY + 12, { align: "center" })
+    doc.text(metric.value, xPos + (metricWidth / 2), currentY + 14, { align: "center" })
+    
+    // Descrição
+    doc.setFontSize(6)
+    doc.setFont(undefined, 'normal')
+    doc.setTextColor(...PDF_CONFIG.COLORS.GRAY)
+    doc.text(metric.description, xPos + (metricWidth / 2), currentY + 18, { align: "center" })
 
     xPos += metricWidth + 10
   })
 
-  return currentY + 25
+  return currentY + 30
 }
 
 /**
@@ -539,8 +585,8 @@ const addPaymentAnalysis = (doc, stats, yPos) => {
 
   doc.setFontSize(12)
   doc.setTextColor(0, 0, 0)
-  doc.text("ANÁLISE POR FORMA DE PAGAMENTO", 20, currentY)
-  currentY += 8
+  doc.text("ANÁLISE DETALHADA POR FORMA DE PAGAMENTO", PDF_CONFIG.MARGIN.LEFT, currentY)
+  currentY += 10
 
   if (stats.paymentAnalysis && Object.keys(stats.paymentAnalysis).length > 0) {
     const totalVolume = stats.totalSales + stats.totalPurchases
@@ -558,70 +604,76 @@ const addPaymentAnalysis = (doc, stats, yPos) => {
 
     autoTable(doc, {
       startY: currentY,
-      head: [['Forma Pagamento', 'Transações', 'Vendas', 'Compras', 'Valor Total', 'Participação']],
+      head: [['Forma de Pagamento', 'Transações', 'Vendas', 'Compras', 'Valor Total', 'Participação']],
       body: paymentData,
       theme: 'grid',
       headStyles: { 
-        fillColor: [59, 130, 246],
+        fillColor: PDF_CONFIG.COLORS.INFO,
         textColor: 255,
         fontStyle: 'bold',
-        fontSize: 7
+        fontSize: PDF_CONFIG.FONT.SIZE.XSMALL
       },
-      styles: { 
-        fontSize: 7,
-        cellPadding: 1.5
+      bodyStyles: { 
+        fontSize: PDF_CONFIG.FONT.SIZE.XSMALL,
+        cellPadding: PDF_CONFIG.TABLE.PADDING,
+        lineWidth: PDF_CONFIG.TABLE.LINE_WIDTH
       },
       columnStyles: {
-        1: { halign: 'right' },
-        2: { halign: 'right' },
-        3: { halign: 'right' },
-        4: { halign: 'right' },
-        5: { halign: 'right' }
+        0: { cellWidth: 30 },
+        1: { cellWidth: 20, halign: 'right' },
+        2: { cellWidth: 25, halign: 'right' },
+        3: { cellWidth: 25, halign: 'right' },
+        4: { cellWidth: 25, halign: 'right', fontStyle: 'bold' },
+        5: { cellWidth: 20, halign: 'right' }
       },
-      margin: { left: 20, right: 20 },
+      margin: { 
+        left: PDF_CONFIG.MARGIN.LEFT, 
+        right: PDF_CONFIG.MARGIN.RIGHT 
+      }
     })
 
-    currentY = doc.lastAutoTable.finalY + 8
+    currentY = doc.lastAutoTable.finalY + 10
   }
 
   return currentY
 }
 
 /**
- * Transações detalhadas com formatação melhorada
+ * Transações detalhadas completas
  */
 const addDetailedTransactions = (doc, transactions, yPos) => {
   let currentY = yPos
 
   doc.setFontSize(12)
   doc.setTextColor(0, 0, 0)
-  doc.text("DETALHAMENTO DAS TRANSAÇÕES", 20, currentY)
-  currentY += 8
+  doc.text("DETALHAMENTO COMPLETO DAS TRANSAÇÕES", PDF_CONFIG.MARGIN.LEFT, currentY)
+  currentY += 10
 
   if (transactions && transactions.length > 0) {
     const tableData = transactions.map((t) => {
       const tipo = t.tipo.toUpperCase()
-      const color = tipo === 'VENDA' ? [22, 163, 74] : 
-                   tipo === 'COMPRA' ? [234, 88, 12] : 
-                   [220, 38, 38]
+      const tipoColor = tipo === 'Venda' ? PDF_CONFIG.COLORS.SUCCESS : 
+                       tipo === 'Compra' ? PDF_CONFIG.COLORS.WARNING : 
+                       PDF_CONFIG.COLORS.DANGER
       
       return [
-        { content: formatDate(t.data), styles: { fontSize: 6 } },
-        { content: tipo, styles: { fontSize: 6, textColor: color, fontStyle: 'bold' } },
-        { content: getMaterialName(t.material)?.substring(0, 15) || 'N/A', styles: { fontSize: 6 } },
-        { content: `${(t.quantidade || 0).toFixed(1)} kg`, styles: { fontSize: 6, halign: 'right' } },
-        { content: `R$ ${(t.precoUnitario || 0).toFixed(2)}`, styles: { fontSize: 6, halign: 'right' } },
-        { content: `R$ ${(t.valorTotal || 0).toFixed(2)}`, styles: { fontSize: 6, halign: 'right', fontStyle: 'bold' } },
-        { content: (t.formaPagamento || 'dinheiro').toUpperCase(), styles: { fontSize: 6 } },
-        { content: (t.cliente || t.fornecedor || t.vendedor || '-').substring(0, 12), styles: { fontSize: 6 } },
-        { content: (t.observacoes || '-').substring(0, 10), styles: { fontSize: 6 } }
+        formatDate(t.data),
+        tipo,
+        getMaterialName(t.material) || 'N/A',
+        `${(t.quantidade || 0).toFixed(1)} kg`,
+        formatCurrency(t.precoUnitario || 0),
+        formatCurrency(t.valorTotal || 0),
+        (t.formaPagamento || 'dinheiro').toUpperCase(),
+        t.cliente || t.fornecedor || t.vendedor || '-',
+        t.observacoes || '-'
       ]
     })
 
     autoTable(doc, {
       startY: currentY,
       head: [[
-        'Data', 'Tipo', 'Material', 'Qtd', 'Preço/kg', 'Valor Total', 'Pagamento', 'Pessoa', 'Obs'
+        'Data', 'Tipo', 'Material', 'Quantidade', 'Preço Unitário', 'Valor Total', 
+        'Forma Pagamento', 'Cliente/Fornecedor', 'Observações'
       ]],
       body: tableData,
       theme: 'grid',
@@ -629,29 +681,55 @@ const addDetailedTransactions = (doc, transactions, yPos) => {
         fillColor: [55, 65, 81],
         textColor: 255,
         fontStyle: 'bold',
-        fontSize: 6
+        fontSize: PDF_CONFIG.FONT.SIZE.XSMALL
       },
-      styles: { 
-        fontSize: 6,
-        cellPadding: 1,
-        lineWidth: 0.1
+      bodyStyles: { 
+        fontSize: PDF_CONFIG.FONT.SIZE.XSMALL,
+        cellPadding: PDF_CONFIG.TABLE.PADDING,
+        lineWidth: PDF_CONFIG.TABLE.LINE_WIDTH
       },
       columnStyles: {
-        0: { cellWidth: 18 },
-        1: { cellWidth: 12 },
-        2: { cellWidth: 20 },
-        3: { cellWidth: 12 },
-        4: { cellWidth: 15 },
-        5: { cellWidth: 18 },
-        6: { cellWidth: 15 },
-        7: { cellWidth: 18 },
-        8: { cellWidth: 12 }
+        0: { cellWidth: 20 },
+        1: { 
+          cellWidth: 15,
+          textColor: (rowIndex, column, row) => {
+            const tipo = row[1]
+            return tipo === 'VENDA' ? PDF_CONFIG.COLORS.SUCCESS : 
+                   tipo === 'COMPRA' ? PDF_CONFIG.COLORS.WARNING : 
+                   PDF_CONFIG.COLORS.DANGER
+          },
+          fontStyle: 'bold'
+        },
+        2: { cellWidth: 25 },
+        3: { cellWidth: 15, halign: 'right' },
+        4: { cellWidth: 18, halign: 'right' },
+        5: { cellWidth: 20, halign: 'right', fontStyle: 'bold' },
+        6: { cellWidth: 18 },
+        7: { cellWidth: 22 },
+        8: { cellWidth: 25 }
       },
-      margin: { left: 20, right: 20 },
+      margin: { 
+        left: PDF_CONFIG.MARGIN.LEFT, 
+        right: PDF_CONFIG.MARGIN.RIGHT 
+      },
       pageBreak: 'auto',
+      styles: {
+        overflow: 'linebreak',
+        cellWidth: 'wrap'
+      }
     })
 
-    currentY = doc.lastAutoTable.finalY + 8
+    currentY = doc.lastAutoTable.finalY + 10
+    
+    // Adicionar estatísticas das transações
+    doc.setFontSize(9)
+    doc.setTextColor(...PDF_CONFIG.COLORS.GRAY)
+    doc.text(`Total de transações listadas: ${transactions.length}`, PDF_CONFIG.MARGIN.LEFT, currentY)
+  } else {
+    doc.setFontSize(9)
+    doc.setTextColor(...PDF_CONFIG.COLORS.GRAY)
+    doc.text("Nenhuma transação encontrada no período selecionado", PDF_CONFIG.MARGIN.LEFT + 5, currentY)
+    currentY += 12
   }
 
   return currentY
@@ -662,11 +740,19 @@ const addDetailedTransactions = (doc, transactions, yPos) => {
  */
 const addFooter = (doc, pageNumber, totalPages) => {
   const pageHeight = doc.internal.pageSize.height
+  const pageWidth = doc.internal.pageSize.width
+  
   doc.setFontSize(7)
-  doc.setTextColor(150, 150, 150)
-  doc.text(`Página ${pageNumber} de ${totalPages}`, 105, pageHeight - 8, { align: "center" })
-  doc.text("Império Sucata - Relatório Gerencial Avançado", 20, pageHeight - 8)
-  doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, doc.internal.pageSize.width - 20, pageHeight - 8, { align: "right" })
+  doc.setTextColor(...PDF_CONFIG.COLORS.GRAY)
+  
+  // Linha separadora
+  doc.setDrawColor(...PDF_CONFIG.COLORS.LIGHT_GRAY)
+  doc.line(PDF_CONFIG.MARGIN.LEFT, pageHeight - 15, pageWidth - PDF_CONFIG.MARGIN.RIGHT, pageHeight - 15)
+  
+  // Textos do rodapé
+  doc.text(`Página ${pageNumber} de ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: "center" })
+  doc.text("Império Sucata - Relatório Gerencial Avançado", PDF_CONFIG.MARGIN.LEFT, pageHeight - 10)
+  doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, pageWidth - PDF_CONFIG.MARGIN.RIGHT, pageHeight - 10, { align: "right" })
 }
 
 // =============================================
@@ -682,8 +768,7 @@ export const generateAdvancedPDF = async (reportData, options = {}) => {
     includePaymentAnalysis = true,
     includeMaterialAnalysis = true,
     includePerformanceAnalysis = true,
-    pageOrientation = "portrait",
-    colorMode = "color"
+    pageOrientation = "portrait"
   } = options
 
   try {
@@ -695,10 +780,7 @@ export const generateAdvancedPDF = async (reportData, options = {}) => {
 
     const period = `${reportData.period.start} - ${reportData.period.end}`
     const totalTransactions = reportData.transactions?.length || 0
-    let yPos = 65
-
-    // Cabeçalho profissional
-    addHeader(doc, title, period, totalTransactions)
+    let yPos = addHeader(doc, title, period, totalTransactions)
 
     // KPIs em destaque
     if (includeSummary && reportData.stats) {
@@ -710,31 +792,31 @@ export const generateAdvancedPDF = async (reportData, options = {}) => {
       yPos = addPerformanceAnalysis(doc, reportData.stats, yPos)
     }
 
-    // Análise de materiais (sempre incluir se houver dados)
-    if (reportData.stats?.topMaterials?.length > 0) {
-      if (yPos > 200) {
+    // Análise de materiais
+    if (includeMaterialAnalysis && reportData.stats?.topMaterials?.length > 0) {
+      if (yPos > 180) {
         doc.addPage()
-        yPos = 20
+        yPos = PDF_CONFIG.MARGIN.TOP
       }
       yPos = addMaterialAnalysis(doc, reportData.stats, yPos)
     }
 
     // Análise de pagamentos
     if (includePaymentAnalysis && reportData.stats) {
-      if (yPos > 220) {
+      if (yPos > 200) {
         doc.addPage()
-        yPos = 20
+        yPos = PDF_CONFIG.MARGIN.TOP
       }
       yPos = addPaymentAnalysis(doc, reportData.stats, yPos)
     }
 
     // Transações detalhadas
     if (includeDetails && reportData.transactions && reportData.transactions.length > 0) {
-      if (yPos > 180) {
+      if (yPos > 160) {
         doc.addPage()
-        yPos = 20
+        yPos = PDF_CONFIG.MARGIN.TOP
       }
-      addDetailedTransactions(doc, reportData.transactions, yPos)
+      yPos = addDetailedTransactions(doc, reportData.transactions, yPos)
     }
 
     // Rodapé em todas as páginas
